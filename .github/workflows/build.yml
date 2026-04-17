@@ -2,8 +2,8 @@ name: Build
 
 on:
   push:
-    paths:
-      - pyproject.toml
+    tags:
+      - "v*"
 
 jobs:
   build:

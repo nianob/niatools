@@ -1,9 +1,11 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "wheel", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
+dynamic = ["version"]
 name = "niatools"
-version = "1.0.0"
 description = "A personal python library by nianob"
 authors = [{name="nianob"}]
+
+[tool.setuptools_scm]
