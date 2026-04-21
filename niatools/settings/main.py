@@ -191,6 +191,7 @@ class Settings:
 
         # replace the old file
         shutil.copyfile(tmp_path, final_filename)
+        os.remove(tmp_path)
     
     # ----------------------------------------------------------------
     # python internals to allow for stuff like len(settings)

@@ -95,6 +95,7 @@ class StorageBase(abc.ABC):
 
         # replace the old file
         shutil.copyfile(tmp_path, final_filename)
+        os.remove(tmp_path)
     
     @abc.abstractmethod
     def stop(self) -> None:
