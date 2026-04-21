@@ -46,7 +46,7 @@ class Settings:
     # ----------------------------------------------------------------
     # init
     @overload
-    def __init__(self, filename: str, default: Optional[str] = None, *, isGlobal: bool = False) -> None: ...
+    def __init__(self, filename: str, default: Optional[str|io.IOBase] = None, *, isGlobal: bool = False) -> None: ...
     @overload
     def __init__(self, fp: io.IOBase, *, isGlobal: bool = False) -> None: ...
     def __init__(self, *args, **kwargs):
@@ -72,10 +72,16 @@ class Settings:
         filename_kwarg: Optional[str] = kwargs.get("filename", None)
         self.filename: Optional[str] = filename_arg or filename_kwarg
         
-        # Get the fallback filename if given
+        # Get the fallback file
+        raw_default_kwarg: Any = kwargs.get("default")
+
         default_arg: Optional[str] = args[1] if len(args) >= 2 and isinstance(args[1], str) else None
-        default_kwarg: Optional[str] = kwargs.get("default", None)
+        default_kwarg: Optional[str] = raw_default_kwarg if isinstance(raw_default_kwarg, str) else None
         default: Optional[str] = default_arg or default_kwarg
+
+        default_fp_arg: Optional[io.IOBase] = args[1] if len(args) >= 2 and isinstance(args[1], io.IOBase) else None
+        default_fp_kwarg: Optional[io.IOBase] = raw_default_kwarg if isinstance(raw_default_kwarg, io.IOBase) else None
+        default_fp: Optional[io.IOBase] = default_fp_arg or default_fp_kwarg
 
         # Get the file-like object if given
         fp_arg: Optional[io.IOBase] = args[0] if len(args) >= 1 and isinstance(args[0], io.IOBase) else None
@@ -92,6 +98,8 @@ class Settings:
             elif default:
                 with open(default, "r") as f:
                     loaded_settings = json.load(f)
+            elif default_fp:
+                loaded_settings = json.load(default_fp)
             else:
                 raise FileNotFoundError("The config file was not found")
         else:
