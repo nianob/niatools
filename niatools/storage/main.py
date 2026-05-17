@@ -6,21 +6,30 @@ import shutil
 import threading
 import time
 
-from typing import Optional, Any
+from typing import Optional, Any, Literal
+
+# ----------------------------------------------------------------
+# Helper Classes
+class _EmtpyMeta(type):
+    def __bool__(self) -> Literal[False]:
+        return False
+
+class Empty(metaclass=_EmtpyMeta):
+    """A Small class simpy saying that this entry holds no value"""
 
 # ----------------------------------------------------------------
 # The Base Class
-
 class StorageBase(abc.ABC):
     """The Base for a storage container"""
 
-    def __init__(self, filename: str, default: Optional[str] = None, autosave_interval: float = 60) -> None:
+    def __init__(self, filename: str, default: Optional[str] = None, autosave_interval: float = 60, total=True) -> None:
         """loads the storage
 
         Args:
             filename: the name of the storage file
             default: the name of the fallback file
             autosave_interval: how often (in seconds) the file should automatically be saved
+            total: Should the keys missing in the file but present in the default file be set to the value in the default file
         
         Raises:
             FileNotFoundError: The specified file was not found.
@@ -35,11 +44,17 @@ class StorageBase(abc.ABC):
         if os.path.exists(self.filename):
             with open(self.filename, "r") as f:
                 self._storage = json.load(f)
-        elif default:
+            if total and default and os.path.exists(default):
+                with open(default, "r") as f:
+                    defaults: dict[str, Any] = json.load(f)
+                for key, value in defaults.items():
+                    if self.get(key) is Empty:
+                        self.set(key, value)
+        elif default and os.path.exists(default):
             with open(default, "r") as f:
                 self._storage = json.load(f)
         else:
-                raise FileNotFoundError("The storage file was not found")
+            raise FileNotFoundError("The storage file was not found")
         
         self._start_autosave_loop()
     
@@ -51,7 +66,7 @@ class StorageBase(abc.ABC):
 
     # ----------------------------------------------------------------
     # general operations
-    def get(self, name: str, default: Any = None) -> Any:
+    def get(self, name: str, default: Any = Empty) -> Any:
         """returns the stored value
         
         Args:
@@ -174,3 +189,6 @@ class ThreadingStorage(StorageBase):
     def save(self, filename: Optional[str] = None) -> None:
         with self._lock:
             return super().save(filename)
+
+if __name__ == "__main__":
+    print(bool(Empty))

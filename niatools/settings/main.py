@@ -5,18 +5,21 @@ import os
 import shutil
 
 from typing import overload, Optional, Any, TypedDict, Required, TypeVar, Generic, Literal
+from deprecation import deprecated
 
 # ----------------------------------------------------------------
 # Type definitons
 
 _T = TypeVar("_T")
 
+@deprecated("1.2.0", details="Use the more flexible Storage instead")
 class SettingDict(TypedDict, Generic[_T], total=False):
     default: _T # The default value
     description: str # A description of the setting
     sensititve: bool # Does the setting contain sensitive information, default: false
     value: Required[_T] # What the setting is currently set to
 
+@deprecated("1.2,0", details="Use the more flexible Storage instead")
 class HiddenObject:
     def __init__(self) -> None: ...
     def __str__(self) -> str: return "<hidden>"
@@ -40,6 +43,7 @@ def getGlobal() -> Settings:
         raise ValueError("There are no global settings defined")
     return _global
 
+@deprecated("1.2.0", details="Use the more flexible Storage class instead")
 class Settings:
     """The settings from a specific file"""
 
@@ -49,6 +53,7 @@ class Settings:
     def __init__(self, filename: str, default: Optional[str|io.IOBase] = None, *, isGlobal: bool = False) -> None: ...
     @overload
     def __init__(self, fp: io.IOBase, *, isGlobal: bool = False) -> None: ...
+    @deprecated("1.2.0", details="Use the more flexible Storage instead")
     def __init__(self, *args, **kwargs):
         """loads the settings
 
@@ -115,6 +120,7 @@ class Settings:
 
     # ----------------------------------------------------------------
     # general operations
+    @deprecated("1.2.0", details="Use the more flexible Storage instead")
     def get(self, name: str, default: Any = None) -> Any:
         """returns the value of the setting
         
@@ -126,6 +132,7 @@ class Settings:
         """
         return self._settings.get(name, {"value": default})["value"]
     
+    @deprecated("1.2.0", details="Use the more flexible Storage instead")
     def set(self, name: str, value: Any) -> None:
         """sets a setting to the given value
         
@@ -137,6 +144,7 @@ class Settings:
         setting["value"] = value
         self._settings[name] = setting
     
+    @deprecated("1.2.0", details="Use the more flexible Storage instead")
     def getPropety(self, name: str, property: Literal["default", "description", "sensitive", "value"]) -> Any:
         """gets a property of a setting
         
@@ -155,6 +163,7 @@ class Settings:
 
         return self._settings[name].get(property, None)
 
+    @deprecated("1.2.0", details="Use the more flexible Storage instead")
     def reset(self, name: str) -> None:
         """resets a settings
         
@@ -171,6 +180,7 @@ class Settings:
     
     # ----------------------------------------------------------------
     # save the settings to file
+    @deprecated("1.2.0", details="Use the more flexible Storage instead")
     def save(self, filename: Optional[str] = None) -> None:
         """Saves the settings to file
         
