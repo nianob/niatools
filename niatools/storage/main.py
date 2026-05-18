@@ -159,9 +159,9 @@ class AsyncStorage(StorageBase):
 class ThreadingStorage(StorageBase):
     """The threading variant of the storage container"""
 
-    def __init__(self, filename: str, default: Optional[str] = None, autosave_interval: float = 60) -> None:
+    def __init__(self, filename: str, default: Optional[str] = None, autosave_interval: float = 60, total: bool = True) -> None:
         self._lock = threading.Lock()
-        super().__init__(filename, default, autosave_interval)
+        super().__init__(filename, default, autosave_interval, total)
 
     def _start_autosave_loop(self) -> None:
         self._running = True
@@ -178,7 +178,7 @@ class ThreadingStorage(StorageBase):
             time.sleep(self._next_save - time.time())
 
     # When dealing with threads we should lock those methods
-    def get(self, name: str, default: Any = None) -> Any:
+    def get(self, name: str, default: Any = Empty) -> Any:
         with self._lock:
             return super().get(name, default)
     
